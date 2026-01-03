@@ -478,5 +478,153 @@ What we'll build:
 
 ---
 
+# 📆 DAY 2: Database Schema & Stored Procedures
+
+**Date:** January 3, 2026  
+**Branch:** Day-2-webRTC  
+**Status:** ✅ COMPLETED
+
+---
+
+## 🎯 Day 2 Objectives
+
+1. ✅ Create RTC_Video_Chat_DB database
+2. ✅ Create all 6 tables with audit fields
+3. ✅ Create 29 stored procedures with dt_vc_ prefix
+4. ✅ Create Node.js models to call stored procedures
+5. ✅ Test all database operations
+
+---
+
+## 📊 Database Created
+
+**Database Name:** RTC_Video_Chat_DB
+
+### Tables Created (6 total):
+
+| Table | Purpose | Columns |
+|-------|---------|---------|
+| `users` | User accounts | user_id, username, email, password_hash, display_name, avatar_url, is_online, last_seen, + 7 audit fields |
+| `rooms` | Video chat rooms | room_id, room_code, room_name, owner_user_id, is_private, password_hash, max_participants, current_participants, + 7 audit fields |
+| `room_participants` | Track who's in each room | participant_id, room_id, user_id, joined_at, left_at, is_host, is_muted, is_video_off, + 7 audit fields |
+| `call_logs` | Call history | call_id, room_id, caller_user_id, callee_user_id, started_at, ended_at, duration_seconds, call_status, + 7 audit fields |
+| `contacts` | User contacts/friends | contact_id, user_id, contact_user_id, nickname, + 7 audit fields |
+| `user_sessions` | Login sessions | session_id, user_id, token_hash, expires_at, ip_address, user_agent, + 7 audit fields |
+
+### Audit Fields (on ALL tables):
+
+| Field | Type | Purpose |
+|-------|------|---------|
+| `is_active` | BOOLEAN | Is record active? |
+| `is_deleted` | BOOLEAN | Soft delete flag |
+| `remarks` | TEXT | Notes/comments |
+| `created_dt` | DATETIME | When created |
+| `created_by` | INT | Who created |
+| `updated_dt` | DATETIME | When updated |
+| `updated_by` | INT | Who updated |
+
+---
+
+## 📝 Stored Procedures Created (29 total)
+
+All procedures use prefix: **dt_vc_**
+
+### User Procedures (8):
+| Procedure | Purpose |
+|-----------|---------|
+| `dt_vc_create_user` | Register new user |
+| `dt_vc_get_user_by_id` | Get user by ID |
+| `dt_vc_get_user_by_email` | Get user by email (login) |
+| `dt_vc_get_user_by_username` | Get user by username |
+| `dt_vc_update_user` | Update profile |
+| `dt_vc_delete_user` | Soft delete user |
+| `dt_vc_update_user_online_status` | Set online/offline |
+| `dt_vc_search_users` | Search users |
+
+### Room Procedures (9):
+| Procedure | Purpose |
+|-----------|---------|
+| `dt_vc_create_room` | Create new room |
+| `dt_vc_get_room_by_id` | Get room by ID |
+| `dt_vc_get_room_by_code` | Get room by code |
+| `dt_vc_get_user_rooms` | Get user's rooms |
+| `dt_vc_update_room` | Update room |
+| `dt_vc_delete_room` | Soft delete room |
+| `dt_vc_update_room_participants` | Update participant count |
+| `dt_vc_add_room_participant` | Add user to room |
+| `dt_vc_remove_room_participant` | Remove user from room |
+| `dt_vc_get_room_participants` | Get participants |
+
+### Call Log Procedures (3):
+| Procedure | Purpose |
+|-----------|---------|
+| `dt_vc_create_call_log` | Log new call |
+| `dt_vc_update_call_log` | Update when call ends |
+| `dt_vc_get_user_call_history` | Get call history |
+
+### Contact Procedures (4):
+| Procedure | Purpose |
+|-----------|---------|
+| `dt_vc_add_contact` | Add contact |
+| `dt_vc_get_user_contacts` | Get contacts |
+| `dt_vc_update_contact` | Update nickname |
+| `dt_vc_delete_contact` | Remove contact |
+
+### Session Procedures (4):
+| Procedure | Purpose |
+|-----------|---------|
+| `dt_vc_create_session` | Create login session |
+| `dt_vc_validate_session` | Validate token |
+| `dt_vc_delete_session` | Logout |
+| `dt_vc_cleanup_expired_sessions` | Remove expired |
+
+---
+
+## 📁 Files Created on Day 2
+
+| File | Purpose |
+|------|---------|
+| `database/schema.sql` | Table creation SQL |
+| `database/stored_procedures.sql` | All stored procedures |
+| `server/models/db.js` | Database helper functions |
+| `server/models/User.js` | User model |
+| `server/models/Room.js` | Room model |
+| `server/models/Contact.js` | Contact model |
+| `server/models/CallLog.js` | Call log model |
+| `server/models/Session.js` | Session model |
+| `server/models/index.js` | Models export |
+
+---
+
+## ✅ Day 2 Test Results
+
+| Test | Result |
+|------|--------|
+| Database created | ✅ PASS |
+| All 6 tables created | ✅ PASS |
+| All 29 stored procedures created | ✅ PASS |
+| dt_vc_create_user works | ✅ PASS |
+| dt_vc_get_user_by_email works | ✅ PASS |
+| dt_vc_create_room works | ✅ PASS |
+| dt_vc_get_room_by_code works | ✅ PASS |
+| dt_vc_add_contact works | ✅ PASS |
+| dt_vc_get_user_contacts works | ✅ PASS |
+
+---
+
+## 🔜 Coming Up: Day 3
+
+**Day 3: User Authentication API**
+
+What we'll build:
+1. Register endpoint (POST /api/auth/register)
+2. Login endpoint (POST /api/auth/login)
+3. Get current user (GET /api/auth/me)
+4. Logout endpoint (POST /api/auth/logout)
+5. JWT token generation and validation
+6. Password hashing with bcrypt
+
+---
+
 *This log will be updated daily as development progresses.*
 
