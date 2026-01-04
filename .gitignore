@@ -1,40 +1,76 @@
 # ============================================
-# Git Ignore File for WebRTC Video-Chat
-# ============================================
-# Files and folders listed here will NOT be
-# uploaded to GitHub
+# Git Ignore File for WebRTC Video-Chat (Python)
 # ============================================
 
-# Dependencies (downloaded via npm install)
-node_modules/
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv/
 
 # Environment files (contain secrets)
 .env
 .env.local
 .env.production
 
-# Log files
-logs/
-*.log
-npm-debug.log*
-
-# Operating System files
-.DS_Store
-.DS_Store?
-Thumbs.db
-
-# IDE/Editor folders
+# IDE/Editor
 .vscode/
 .idea/
 *.swp
 *.swo
+*.sublime-workspace
+*.sublime-project
 
-# Build output
-dist/
-build/
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
+.DS_Store?
+Thumbs.db
+
+# Node.js (keeping in case of mixed project)
+node_modules/
+package-lock.json
+
+# Database
+*.db
+*.sqlite3
 
 # Temporary files
 tmp/
 temp/
 *.tmp
-

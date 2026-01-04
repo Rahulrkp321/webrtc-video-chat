@@ -1,72 +1,43 @@
 <!DOCTYPE html>
 <!--
 ============================================
-WebRTC Video-Chat - Home Page
+WebRTC Video-Chat - Home Page (Python/Flask)
 ============================================
-This is the landing page of our application.
-We'll make it more beautiful later, but for now
-it's a simple page to test that everything works.
+Landing page for the video chat application.
 ============================================
 -->
 <html lang="en">
 <head>
-    <!-- 
-    META TAGS
-    These provide information about the page to browsers
-    -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="WebRTC Video-Chat - Real-time video calling application">
     
-    <!-- Page Title (shows in browser tab) -->
     <title>WebRTC Video-Chat</title>
     
-    <!-- 
-    FAVICON - The small icon in browser tab
-    Using a simple emoji for now
-    -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎥</text></svg>">
     
-    <!-- 
-    INTERNAL STYLES
-    We'll move these to a separate CSS file later
-    -->
     <style>
-        /* 
-        CSS VARIABLES (Custom Properties)
-        These let us define colors once and reuse them
-        Think of them as "labels" for colors
-        */
         :root {
-            --primary-color: #6366f1;      /* Indigo - main brand color */
-            --primary-dark: #4f46e5;       /* Darker indigo for hover */
-            --secondary-color: #22d3ee;    /* Cyan - accent color */
-            --background-dark: #0f172a;    /* Very dark blue - background */
-            --background-card: #1e293b;    /* Slightly lighter - cards */
-            --text-primary: #f8fafc;       /* Almost white - main text */
-            --text-secondary: #94a3b8;     /* Gray - secondary text */
-            --success-color: #22c55e;      /* Green - success messages */
-            --error-color: #ef4444;        /* Red - error messages */
+            --primary-color: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary-color: #22d3ee;
+            --background-dark: #0f172a;
+            --background-card: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --success-color: #22c55e;
+            --error-color: #ef4444;
         }
         
-        /* 
-        RESET DEFAULT STYLES
-        Browsers have default styles that can be inconsistent
-        This resets them for consistency
-        */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
         
-        /*
-        BODY STYLES
-        The main container of everything visible
-        */
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: var(--background-dark);
+            background: linear-gradient(135deg, var(--background-dark) 0%, #1a1a2e 100%);
             color: var(--text-primary);
             min-height: 100vh;
             display: flex;
@@ -74,40 +45,19 @@ it's a simple page to test that everything works.
             align-items: center;
             justify-content: center;
             padding: 20px;
-            
-            /* Gradient background for visual appeal */
-            background: linear-gradient(135deg, var(--background-dark) 0%, #1a1a2e 100%);
         }
         
-        /*
-        MAIN CONTAINER
-        Centers content and limits width
-        */
         .container {
             text-align: center;
             max-width: 600px;
             animation: fadeIn 0.8s ease-out;
         }
         
-        /*
-        FADE IN ANIMATION
-        Makes the page appear smoothly
-        */
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
-        /*
-        LOGO SECTION
-        The main icon/emoji at the top
-        */
         .logo {
             font-size: 80px;
             margin-bottom: 20px;
@@ -115,17 +65,10 @@ it's a simple page to test that everything works.
         }
         
         @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.1);
-            }
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
         
-        /*
-        MAIN HEADING
-        */
         h1 {
             font-size: 2.5rem;
             font-weight: 700;
@@ -136,19 +79,23 @@ it's a simple page to test that everything works.
             background-clip: text;
         }
         
-        /*
-        SUBTITLE
-        */
         .subtitle {
             font-size: 1.2rem;
             color: var(--text-secondary);
             margin-bottom: 40px;
         }
         
-        /*
-        STATUS CARD
-        Shows server status
-        */
+        .tech-badge {
+            display: inline-block;
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--primary-color);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+            border: 1px solid var(--primary-color);
+        }
+        
         .status-card {
             background: var(--background-card);
             border-radius: 16px;
@@ -181,22 +128,14 @@ it's a simple page to test that everything works.
         }
         
         @keyframes blink {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.5;
-            }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
         
         .status-dot.error {
             background: var(--error-color);
         }
         
-        /*
-        INFO LIST
-        Shows setup information
-        */
         .info-list {
             text-align: left;
             margin-top: 20px;
@@ -213,13 +152,8 @@ it's a simple page to test that everything works.
             font-size: 0.95rem;
         }
         
-        .info-item .icon {
-            font-size: 1.2rem;
-        }
+        .info-item .icon { font-size: 1.2rem; }
         
-        /*
-        ACTION BUTTONS
-        */
         .actions {
             display: flex;
             gap: 15px;
@@ -262,9 +196,6 @@ it's a simple page to test that everything works.
             background: rgba(99, 102, 241, 0.1);
         }
         
-        /*
-        FOOTER
-        */
         .footer {
             margin-top: 40px;
             color: var(--text-secondary);
@@ -280,36 +211,22 @@ it's a simple page to test that everything works.
             text-decoration: underline;
         }
         
-        /*
-        RESPONSIVE DESIGN
-        Adjusts layout for smaller screens
-        */
         @media (max-width: 480px) {
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .logo {
-                font-size: 60px;
-            }
-            
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
+            h1 { font-size: 2rem; }
+            .logo { font-size: 60px; }
+            .btn { width: 100%; justify-content: center; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Logo -->
         <div class="logo">🎥</div>
         
-        <!-- Title -->
         <h1>WebRTC Video-Chat</h1>
         <p class="subtitle">Real-time video calling powered by WebRTC</p>
         
-        <!-- Status Card -->
+        <div class="tech-badge">🐍 Python + Flask</div>
+        
         <div class="status-card">
             <p class="status-title">Server Status</p>
             <div class="status-indicator" id="statusIndicator">
@@ -317,12 +234,9 @@ it's a simple page to test that everything works.
                 <span id="statusText">Checking...</span>
             </div>
             
-            <div class="info-list" id="infoList">
-                <!-- Will be populated by JavaScript -->
-            </div>
+            <div class="info-list" id="infoList"></div>
         </div>
         
-        <!-- Action Buttons -->
         <div class="actions">
             <a href="/api/health" class="btn btn-primary" target="_blank">
                 <span>❤️</span>
@@ -334,49 +248,33 @@ it's a simple page to test that everything works.
             </a>
         </div>
         
-        <!-- Footer -->
         <div class="footer">
-            <p>Day 1 Complete! • <a href="https://github.com/Rahulrkp321/webrtc-video-chat" target="_blank">GitHub Repository</a></p>
+            <p>Built with Python & Flask • <a href="https://github.com/Rahulrkp321/webrtc-video-chat" target="_blank">GitHub Repository</a></p>
         </div>
     </div>
     
-    <!-- 
-    ============================================
-    JAVASCRIPT
-    ============================================
-    This script checks if the server is working
-    and displays status information
-    ============================================
-    -->
     <script>
-        /**
-         * Check server health and display status
-         * 
-         * This function:
-         * 1. Makes a request to /api/health
-         * 2. Updates the status indicator
-         * 3. Shows server information
-         */
         async function checkServerStatus() {
             const statusDot = document.getElementById('statusDot');
             const statusText = document.getElementById('statusText');
             const infoList = document.getElementById('infoList');
             
             try {
-                // Make request to health endpoint
                 const response = await fetch('/api/health');
                 const data = await response.json();
                 
-                // Update status indicator
                 statusDot.classList.remove('error');
                 statusText.textContent = 'Server Online';
                 statusText.style.color = '#22c55e';
                 
-                // Show server info
                 infoList.innerHTML = `
                     <div class="info-item">
                         <span class="icon">✅</span>
                         <span>Status: ${data.status}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="icon">🐍</span>
+                        <span>Framework: ${data.framework}</span>
                     </div>
                     <div class="info-item">
                         <span class="icon">⏰</span>
@@ -384,16 +282,11 @@ it's a simple page to test that everything works.
                     </div>
                     <div class="info-item">
                         <span class="icon">🚀</span>
-                        <span>Uptime: ${Math.floor(parseFloat(data.uptime))} seconds</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="icon">📦</span>
-                        <span>Day 1 Setup Complete!</span>
+                        <span>Uptime: ${data.uptime}</span>
                     </div>
                 `;
                 
             } catch (error) {
-                // Show error status
                 statusDot.classList.add('error');
                 statusText.textContent = 'Server Offline';
                 statusText.style.color = '#ef4444';
@@ -405,16 +298,13 @@ it's a simple page to test that everything works.
                     </div>
                     <div class="info-item">
                         <span class="icon">💡</span>
-                        <span>Make sure the server is running: npm start</span>
+                        <span>Make sure the server is running: python run.py</span>
                     </div>
                 `;
             }
         }
         
-        // Check status when page loads
         checkServerStatus();
-        
-        // Re-check every 5 seconds
         setInterval(checkServerStatus, 5000);
     </script>
 </body>
