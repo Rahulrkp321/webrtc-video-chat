@@ -51,8 +51,8 @@ All database access follows these strict rules:
 |-----|-------|--------|
 | Day 1 | Environment Setup + Flask Server | ✅ Complete |
 | Day 2 | Database Schema + Stored Procedures | ✅ Complete |
-| Day 3 | User Authentication API | 🔜 Next |
-| Day 4 | Authentication UI (Login/Register) | ⏳ Pending |
+| Day 3 | User Authentication API | ✅ Complete |
+| Day 4 | Authentication UI (Login/Register) | 🔜 Next |
 | Day 5 | Signaling Server + Room Management | ⏳ Pending |
 | Day 6 | WebRTC Core Implementation | ⏳ Pending |
 | Day 7 | Complete Video Call Flow | ⏳ Pending |
@@ -287,23 +287,188 @@ SHOW PROCEDURE STATUS WHERE Db = 'RTC_Video_Chat_DB';
 
 ---
 
-## 🔜 Day 3 Preview: User Authentication API
+# 📅 Day 3: User Authentication API
+
+## Goals
+- ✅ Create password hashing utilities
+- ✅ Create JWT token utilities
+- ✅ Create authentication middleware
+- ✅ Create auth controller
+- ✅ Create auth routes
+- ✅ Test all endpoints
+
+## What We Built
+
+### 1. New Files Created
+
+| File | Purpose | Lines |
+|------|---------|-------|
+| `app/utils/__init__.py` | Utils package | 14 |
+| `app/utils/password.py` | Password hashing with bcrypt | 120 |
+| `app/utils/jwt_helper.py` | JWT token generation/validation | 180 |
+| `app/middleware/__init__.py` | Middleware package | 12 |
+| `app/middleware/auth_middleware.py` | @token_required decorator | 200 |
+| `app/controllers/__init__.py` | Controllers package | 15 |
+| `app/controllers/auth_controller.py` | Auth business logic | 350 |
+| `app/routes/auth_routes.py` | Auth API endpoints | 200 |
+
+### 2. API Endpoints Created
+
+| Endpoint | Method | Description | Auth Required |
+|----------|--------|-------------|---------------|
+| `/api/auth/register` | POST | Create new account | No |
+| `/api/auth/login` | POST | Login and get token | No |
+| `/api/auth/me` | GET | Get current user | Yes |
+| `/api/auth/logout` | POST | Logout user | Yes |
+| `/api/auth/check` | GET | Verify token is valid | Yes |
+
+### 3. Key Concepts Explained
+
+#### Password Hashing with bcrypt
+
+```python
+import bcrypt
+
+def hash_password(plain_password):
+    """
+    Convert password to secure hash.
+    
+    Example:
+        "myPassword" → "$2b$12$LQv3c1yq..."
+    """
+    password_bytes = plain_password.encode('utf-8')
+    salt = bcrypt.gensalt(rounds=12)
+    hashed = bcrypt.hashpw(password_bytes, salt)
+    return hashed.decode('utf-8')
+
+def verify_password(plain_password, hashed_password):
+    """
+    Check if password matches stored hash.
+    Returns True or False.
+    """
+    return bcrypt.checkpw(
+        plain_password.encode('utf-8'),
+        hashed_password.encode('utf-8')
+    )
+```
+
+#### JWT Token Generation
+
+```python
+import jwt
+from datetime import datetime, timedelta
+
+def generate_token(user_id, username, email):
+    """
+    Create JWT token with user info.
+    Token expires in 7 days.
+    """
+    payload = {
+        'user_id': user_id,
+        'username': username,
+        'email': email,
+        'exp': datetime.utcnow() + timedelta(days=7)
+    }
+    return jwt.encode(payload, SECRET_KEY, algorithm='HS256')
+
+def decode_token(token):
+    """
+    Validate and decode JWT token.
+    Returns payload if valid, error if not.
+    """
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+        return {'valid': True, 'payload': payload}
+    except jwt.ExpiredSignatureError:
+        return {'valid': False, 'error': 'Token expired'}
+```
+
+#### @token_required Decorator
+
+```python
+from functools import wraps
+from flask import request, jsonify, g
+
+def token_required(f):
+    """
+    Decorator to protect routes.
+    
+    Usage:
+        @app.route('/protected')
+        @token_required
+        def protected_route():
+            user = g.current_user
+            return jsonify({'hello': user['username']})
+    """
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        # Get token from header
+        token = request.headers.get('Authorization')
+        
+        if not token:
+            return jsonify({'error': 'No token'}), 401
+        
+        # Validate token
+        result = decode_token(token)
+        if not result['valid']:
+            return jsonify({'error': result['error']}), 401
+        
+        # Get user from database
+        user = get_user_by_id(result['payload']['user_id'])
+        g.current_user = user
+        
+        return f(*args, **kwargs)
+    return decorated
+```
+
+### 4. Test Results
+
+| Test | Expected | Result |
+|------|----------|--------|
+| Register new user | 201 Created | ✅ PASS |
+| Register duplicate user | 400 Bad Request | ✅ PASS |
+| Register invalid email | 400 Bad Request | ✅ PASS |
+| Login with email | 200 OK + token | ✅ PASS |
+| Login wrong password | 401 Unauthorized | ✅ PASS |
+| Get user with token | 200 OK + user data | ✅ PASS |
+| Get user without token | 401 Unauthorized | ✅ PASS |
+| Check auth status | 200 OK | ✅ PASS |
+| Logout | 200 OK | ✅ PASS |
+| Use token after logout | 401 Unauthorized | ✅ PASS |
+
+### 5. How to Test
+
+```bash
+# Register
+curl -X POST http://localhost:3000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"username": "john", "email": "john@example.com", "password": "password123"}'
+
+# Login
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "john@example.com", "password": "password123"}'
+
+# Get Profile (use token from login)
+curl -X GET http://localhost:3000/api/auth/me \
+  -H "Authorization: Bearer YOUR_TOKEN_HERE"
+
+# Logout
+curl -X POST http://localhost:3000/api/auth/logout \
+  -H "Authorization: Bearer YOUR_TOKEN_HERE"
+```
+
+---
+
+## 🔜 Day 4 Preview: Authentication UI
 
 ### What We'll Build
-1. Register endpoint (`POST /api/auth/register`)
-2. Login endpoint (`POST /api/auth/login`)
-3. Get current user (`GET /api/auth/me`)
-4. Logout endpoint (`POST /api/auth/logout`)
-5. JWT token generation and validation
-6. Password hashing with bcrypt
-7. Auth middleware for protected routes
-
-### Python Concepts to Learn
-- Route decorators (`@app.route`)
-- Request handling (`request.get_json()`)
-- Password hashing (`bcrypt.hashpw()`)
-- JWT tokens (`jwt.encode()` / `jwt.decode()`)
-- Middleware/decorators (`@token_required`)
+1. Login page with form
+2. Register page with form
+3. Dashboard (after login)
+4. Navigation with auth state
+5. Token storage in localStorage
+6. Protected page redirects
 
 ---
 
@@ -413,4 +578,4 @@ git push -u origin Day-2-Python
 
 ---
 
-*Last updated: Day 2 - Database Setup*
+*Last updated: Day 3 - User Authentication API*

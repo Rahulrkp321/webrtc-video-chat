@@ -93,9 +93,16 @@ def create_app(config_name='development'):
     # ============================================
     
     # Import and register blueprints
-    from app.routes import main_bp, api_bp
+    from app.routes import main_bp, api_bp, auth_bp
+    
+    # Main pages (/, /login, /register, etc.)
     app.register_blueprint(main_bp)
+    
+    # General API routes (/api, /api/health, etc.)
     app.register_blueprint(api_bp, url_prefix='/api')
+    
+    # Authentication routes (/api/auth/register, /api/auth/login, etc.)
+    app.register_blueprint(auth_bp, url_prefix='/api/auth')
     
     # ============================================
     # ERROR HANDLERS

@@ -40,6 +40,13 @@ api_bp = Blueprint('api', __name__)
 
 
 # ============================================
+# AUTH BLUEPRINT
+# ============================================
+# Handles authentication endpoints (/api/auth/...)
+from app.routes.auth_routes import auth_bp
+
+
+# ============================================
 # IMPORT ROUTE HANDLERS
 # ============================================
 # These imports register the route handlers with blueprints
