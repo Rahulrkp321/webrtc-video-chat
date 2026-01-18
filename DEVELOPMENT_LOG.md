@@ -52,8 +52,8 @@ All database access follows these strict rules:
 | Day 1 | Environment Setup + Flask Server | ✅ Complete |
 | Day 2 | Database Schema + Stored Procedures | ✅ Complete |
 | Day 3 | User Authentication API | ✅ Complete |
-| Day 4 | Authentication UI (Login/Register) | 🔜 Next |
-| Day 5 | Signaling Server + Room Management | ⏳ Pending |
+| Day 4 | Authentication UI (Login/Register) | ✅ Complete |
+| Day 5 | Signaling Server + Room Management | 🔜 Next |
 | Day 6 | WebRTC Core Implementation | ⏳ Pending |
 | Day 7 | Complete Video Call Flow | ⏳ Pending |
 | Day 8 | Call Controls + Features | ⏳ Pending |
@@ -460,15 +460,152 @@ curl -X POST http://localhost:3000/api/auth/logout \
 
 ---
 
-## 🔜 Day 4 Preview: Authentication UI
+---
+
+# 📅 Day 4: Authentication UI (Login/Register)
+
+## Goals
+- ✅ Create shared CSS stylesheet
+- ✅ Create auth JavaScript (API calls, token storage)
+- ✅ Create login page
+- ✅ Create register page
+- ✅ Create dashboard page
+- ✅ Update home page with navigation
+
+## What We Built
+
+### 1. New Files Created
+
+| File | Purpose | Lines |
+|------|---------|-------|
+| `app/static/css/style.css` | Main stylesheet with dark theme | 550+ |
+| `app/static/js/auth.js` | Auth API calls, token management | 400+ |
+| `app/templates/login.html` | Login form page | 180 |
+| `app/templates/register.html` | Registration form page | 220 |
+| `app/templates/dashboard.html` | User dashboard after login | 280 |
+| `app/templates/index.html` | Updated home page | 180 |
+
+### 2. Pages Created
+
+| Page | URL | Description |
+|------|-----|-------------|
+| Home | `/` | Landing page with features |
+| Login | `/login` | Email/password login form |
+| Register | `/register` | Account creation form |
+| Dashboard | `/dashboard` | Protected user dashboard |
+
+### 3. Key Features
+
+#### CSS Styling
+- Dark theme with CSS variables
+- Responsive design (mobile-friendly)
+- Animations and transitions
+- Form styling with validation states
+- Toast notifications
+- Modal dialogs
+
+#### JavaScript Auth Module
+```javascript
+// Token management
+Auth.saveAuth(token, user);    // Save to localStorage
+Auth.getToken();               // Get stored token
+Auth.getUser();                // Get stored user
+Auth.clearAuth();              // Clear on logout
+Auth.isLoggedIn();             // Check auth state
+
+// API calls
+Auth.register(username, email, password);
+Auth.login(emailOrUsername, password);
+Auth.logout();
+Auth.getCurrentUser();
+Auth.checkAuth();
+
+// Page protection
+Auth.requireAuth();            // Redirect if not logged in
+Auth.redirectIfLoggedIn();     // Redirect if already logged in
+
+// UI helpers
+Auth.showToast(message, type);
+Auth.setButtonLoading(button, loading);
+Auth.showFieldError(inputId, message);
+```
+
+#### Form Validation
+- Client-side validation before API call
+- Email format validation
+- Username format validation (3-50 chars, alphanumeric)
+- Password length validation (min 6 chars)
+- Confirm password matching
+- Real-time error clearing on input
+
+### 4. User Flow
+
+```
+Home Page (/)
+    │
+    ├── Not Logged In
+    │   ├── Click "Get Started" → Register Page
+    │   └── Click "Sign In" → Login Page
+    │
+    └── Logged In
+        └── Click "Dashboard" → Dashboard Page
+
+Login Page (/login)
+    │
+    ├── Enter credentials
+    ├── Click "Sign In"
+    ├── API validates
+    └── Success → Redirect to Dashboard
+
+Register Page (/register)
+    │
+    ├── Fill form
+    ├── Click "Create Account"
+    ├── API creates user
+    └── Success → Redirect to Dashboard
+
+Dashboard (/dashboard)
+    │
+    ├── Protected (requires login)
+    ├── Shows user profile
+    ├── Action cards (Start Call, Join Room, etc.)
+    └── Logout button
+```
+
+### 5. Test Results
+
+| Test | Result |
+|------|--------|
+| Home page loads | ✅ PASS |
+| Login page loads | ✅ PASS |
+| Register page loads | ✅ PASS |
+| Dashboard page loads | ✅ PASS |
+| CSS file loads | ✅ PASS |
+| JS file loads | ✅ PASS |
+| Form validation works | ✅ PASS |
+| Login flow works | ✅ PASS |
+| Register flow works | ✅ PASS |
+| Logout works | ✅ PASS |
+
+### 6. How to Test
+
+1. Open browser: http://localhost:3000
+2. Click "Get Started" to register
+3. Fill in the form and submit
+4. You'll be redirected to dashboard
+5. Click "Logout" to test logout
+6. Try logging in with your credentials
+
+---
+
+## 🔜 Day 5 Preview: Signaling Server + Room Management
 
 ### What We'll Build
-1. Login page with form
-2. Register page with form
-3. Dashboard (after login)
-4. Navigation with auth state
-5. Token storage in localStorage
-6. Protected page redirects
+1. Socket.IO event handlers
+2. Room creation API
+3. Room joining logic
+4. User presence tracking
+5. Room page UI
 
 ---
 
@@ -578,4 +715,4 @@ git push -u origin Day-2-Python
 
 ---
 
-*Last updated: Day 3 - User Authentication API*
+*Last updated: Day 4 - Authentication UI*

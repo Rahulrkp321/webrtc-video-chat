@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
 ============================================
-WebRTC Video-Chat - Home Page (Python/Flask)
+WebRTC Video-Chat - Home Page
 ============================================
-Landing page for the video chat application.
+Landing page with navigation and auth state.
 ============================================
 -->
 <html lang="en">
@@ -14,299 +14,140 @@ Landing page for the video chat application.
     
     <title>WebRTC Video-Chat</title>
     
+    <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎥</text></svg>">
     
-    <style>
-        :root {
-            --primary-color: #6366f1;
-            --primary-dark: #4f46e5;
-            --secondary-color: #22d3ee;
-            --background-dark: #0f172a;
-            --background-card: #1e293b;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --success-color: #22c55e;
-            --error-color: #ef4444;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, var(--background-dark) 0%, #1a1a2e 100%);
-            color: var(--text-primary);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .container {
-            text-align: center;
-            max-width: 600px;
-            animation: fadeIn 0.8s ease-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .logo {
-            font-size: 80px;
-            margin-bottom: 20px;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-        
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .subtitle {
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-            margin-bottom: 40px;
-        }
-        
-        .tech-badge {
-            display: inline-block;
-            background: rgba(99, 102, 241, 0.2);
-            color: var(--primary-color);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            margin-bottom: 30px;
-            border: 1px solid var(--primary-color);
-        }
-        
-        .status-card {
-            background: var(--background-card);
-            border-radius: 16px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .status-title {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            margin-bottom: 15px;
-        }
-        
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-size: 1.3rem;
-        }
-        
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: var(--success-color);
-            animation: blink 1.5s infinite;
-        }
-        
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        .status-dot.error {
-            background: var(--error-color);
-        }
-        
-        .info-list {
-            text-align: left;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .info-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 0;
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-        }
-        
-        .info-item .icon { font-size: 1.2rem; }
-        
-        .actions {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 14px 28px;
-            font-size: 1rem;
-            font-weight: 600;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
-        }
-        
-        .btn-secondary {
-            background: transparent;
-            color: var(--text-primary);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .btn-secondary:hover {
-            border-color: var(--primary-color);
-            background: rgba(99, 102, 241, 0.1);
-        }
-        
-        .footer {
-            margin-top: 40px;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-        
-        .footer a {
-            color: var(--primary-color);
-            text-decoration: none;
-        }
-        
-        .footer a:hover {
-            text-decoration: underline;
-        }
-        
-        @media (max-width: 480px) {
-            h1 { font-size: 2rem; }
-            .logo { font-size: 60px; }
-            .btn { width: 100%; justify-content: center; }
-        }
-    </style>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-    <div class="container">
-        <div class="logo">🎥</div>
-        
-        <h1>WebRTC Video-Chat</h1>
-        <p class="subtitle">Real-time video calling powered by WebRTC</p>
-        
-        <div class="tech-badge">🐍 Python + Flask</div>
-        
-        <div class="status-card">
-            <p class="status-title">Server Status</p>
-            <div class="status-indicator" id="statusIndicator">
-                <span class="status-dot" id="statusDot"></span>
-                <span id="statusText">Checking...</span>
+    <div class="page-wrapper">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="navbar-container">
+                <!-- Brand -->
+                <a href="/" class="navbar-brand">
+                    <span class="logo">🎥</span>
+                    <span>WebRTC Video-Chat</span>
+                </a>
+                
+                <!-- Navigation Links -->
+                <ul class="navbar-nav">
+                    <!-- Auth Links (shown when logged out) -->
+                    <li id="auth-nav">
+                        <a href="/login" class="btn btn-secondary btn-sm">Login</a>
+                        <a href="/register" class="btn btn-primary btn-sm">Get Started</a>
+                    </li>
+                    
+                    <!-- User Menu (shown when logged in) -->
+                    <li id="user-nav" class="user-menu hidden">
+                        <a href="/dashboard" class="nav-link">Dashboard</a>
+                        <div class="user-avatar" id="user-avatar">U</div>
+                        <span class="user-name" id="user-display-name">User</span>
+                    </li>
+                </ul>
             </div>
-            
-            <div class="info-list" id="infoList"></div>
-        </div>
+        </nav>
         
-        <div class="actions">
-            <a href="/api/health" class="btn btn-primary" target="_blank">
-                <span>❤️</span>
-                <span>Check API Health</span>
-            </a>
-            <a href="/api" class="btn btn-secondary" target="_blank">
-                <span>📡</span>
-                <span>View API Docs</span>
-            </a>
-        </div>
+        <!-- Hero Section -->
+        <main class="main-content">
+            <div class="center-page" style="min-height: calc(100vh - 200px);">
+                <div style="text-align: center; max-width: 700px; animation: slideUp 0.6s ease-out;">
+                    <!-- Logo -->
+                    <div style="font-size: 6rem; margin-bottom: 24px; animation: pulse 2s infinite;">
+                        🎥
+                    </div>
+                    
+                    <!-- Title -->
+                    <h1 style="font-size: 3rem; margin-bottom: 16px;">
+                        <span class="text-gradient">WebRTC Video-Chat</span>
+                    </h1>
+                    
+                    <!-- Subtitle -->
+                    <p style="font-size: 1.25rem; color: var(--text-secondary); margin-bottom: 40px; line-height: 1.7;">
+                        Connect face-to-face with anyone, anywhere. 
+                        High-quality video calls powered by WebRTC technology.
+                    </p>
+                    
+                    <!-- CTA Buttons -->
+                    <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+                        <a href="/register" class="btn btn-primary btn-lg" id="cta-register">
+                            🚀 Get Started Free
+                        </a>
+                        <a href="/login" class="btn btn-secondary btn-lg" id="cta-login">
+                            Sign In
+                        </a>
+                        <a href="/dashboard" class="btn btn-primary btn-lg hidden" id="cta-dashboard">
+                            📊 Go to Dashboard
+                        </a>
+                    </div>
+                    
+                    <!-- Features -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 24px; margin-top: 60px;">
+                        <div style="padding: 20px;">
+                            <div style="font-size: 2.5rem; margin-bottom: 12px;">🔒</div>
+                            <h3 style="font-size: 1rem; margin-bottom: 8px;">Secure</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem;">End-to-end encrypted video calls</p>
+                        </div>
+                        <div style="padding: 20px;">
+                            <div style="font-size: 2.5rem; margin-bottom: 12px;">⚡</div>
+                            <h3 style="font-size: 1rem; margin-bottom: 8px;">Fast</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem;">Low latency peer-to-peer connection</p>
+                        </div>
+                        <div style="padding: 20px;">
+                            <div style="font-size: 2.5rem; margin-bottom: 12px;">👥</div>
+                            <h3 style="font-size: 1rem; margin-bottom: 8px;">Group Calls</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem;">Up to 10 participants per room</p>
+                        </div>
+                        <div style="padding: 20px;">
+                            <div style="font-size: 2.5rem; margin-bottom: 12px;">🌐</div>
+                            <h3 style="font-size: 1rem; margin-bottom: 8px;">No Install</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem;">Works directly in your browser</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
         
-        <div class="footer">
-            <p>Built with Python & Flask • <a href="https://github.com/Rahulrkp321/webrtc-video-chat" target="_blank">GitHub Repository</a></p>
-        </div>
+        <!-- Footer -->
+        <footer style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.9rem; border-top: 1px solid var(--border);">
+            <p>Built with Python & Flask • 
+                <a href="https://github.com/Rahulrkp321/webrtc-video-chat" target="_blank">GitHub</a>
+            </p>
+        </footer>
     </div>
     
+    <!-- Scripts -->
+    <script src="/static/js/auth.js"></script>
     <script>
-        async function checkServerStatus() {
-            const statusDot = document.getElementById('statusDot');
-            const statusText = document.getElementById('statusText');
-            const infoList = document.getElementById('infoList');
+        // Update UI based on auth state
+        function updateUI() {
+            const isLoggedIn = Auth.isLoggedIn();
+            const user = Auth.getUser();
             
-            try {
-                const response = await fetch('/api/health');
-                const data = await response.json();
+            if (isLoggedIn && user) {
+                // Show user nav, hide auth nav
+                document.getElementById('auth-nav').classList.add('hidden');
+                document.getElementById('user-nav').classList.remove('hidden');
                 
-                statusDot.classList.remove('error');
-                statusText.textContent = 'Server Online';
-                statusText.style.color = '#22c55e';
+                // Update user info
+                document.getElementById('user-display-name').textContent = user.display_name || user.username;
+                document.getElementById('user-avatar').textContent = (user.display_name || user.username).charAt(0).toUpperCase();
                 
-                infoList.innerHTML = `
-                    <div class="info-item">
-                        <span class="icon">✅</span>
-                        <span>Status: ${data.status}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="icon">🐍</span>
-                        <span>Framework: ${data.framework}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="icon">⏰</span>
-                        <span>Server Time: ${new Date(data.timestamp).toLocaleString()}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="icon">🚀</span>
-                        <span>Uptime: ${data.uptime}</span>
-                    </div>
-                `;
-                
-            } catch (error) {
-                statusDot.classList.add('error');
-                statusText.textContent = 'Server Offline';
-                statusText.style.color = '#ef4444';
-                
-                infoList.innerHTML = `
-                    <div class="info-item">
-                        <span class="icon">❌</span>
-                        <span>Error: ${error.message}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="icon">💡</span>
-                        <span>Make sure the server is running: python run.py</span>
-                    </div>
-                `;
+                // Update CTA buttons
+                document.getElementById('cta-register').classList.add('hidden');
+                document.getElementById('cta-login').classList.add('hidden');
+                document.getElementById('cta-dashboard').classList.remove('hidden');
             }
         }
         
-        checkServerStatus();
-        setInterval(checkServerStatus, 5000);
+        // Run on page load
+        updateUI();
     </script>
 </body>
 </html>
-

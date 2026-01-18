@@ -1,13 +1,328 @@
 <!DOCTYPE html>
+<!--
+============================================
+WebRTC Video-Chat - Dashboard Page
+============================================
+Main dashboard after login.
+
+WHAT THIS PAGE DOES:
+1. Shows user welcome message
+2. Displays action cards (Start Call, Join Room, etc.)
+3. Shows user profile info
+4. Provides logout functionality
+============================================
+-->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="WebRTC Video-Chat Dashboard">
+    
     <title>Dashboard - WebRTC Video-Chat</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎥</text></svg>">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-    <h1>Dashboard</h1>
-    <p>Coming in Day 4...</p>
+    <div class="page-wrapper">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="navbar-container">
+                <!-- Brand -->
+                <a href="/" class="navbar-brand">
+                    <span class="logo">🎥</span>
+                    <span>WebRTC Video-Chat</span>
+                </a>
+                
+                <!-- Navigation Links -->
+                <ul class="navbar-nav">
+                    <!-- Auth Links (shown when logged out) -->
+                    <li id="auth-nav" class="hidden">
+                        <a href="/login" class="nav-link">Login</a>
+                        <a href="/register" class="nav-link">Register</a>
+                    </li>
+                    
+                    <!-- User Menu (shown when logged in) -->
+                    <li id="user-nav" class="user-menu">
+                        <div class="user-avatar" id="user-avatar">U</div>
+                        <span class="user-name" id="user-display-name">User</span>
+                        <button onclick="handleLogout()" class="btn btn-secondary btn-sm">
+                            Logout
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="container">
+                <!-- Welcome Header -->
+                <div class="dashboard-header">
+                    <h1>Welcome, <span id="welcome-name" class="text-gradient">User</span>! 👋</h1>
+                    <p class="text-muted">What would you like to do today?</p>
+                </div>
+                
+                <!-- Action Cards Grid -->
+                <div class="dashboard-grid">
+                    <!-- Start New Call -->
+                    <div class="dashboard-card" onclick="startNewCall()">
+                        <div class="icon">📹</div>
+                        <h3>Start New Call</h3>
+                        <p>Create a new video room and invite others to join.</p>
+                        <button class="btn btn-primary">
+                            Start Call
+                        </button>
+                    </div>
+                    
+                    <!-- Join Room -->
+                    <div class="dashboard-card" onclick="showJoinModal()">
+                        <div class="icon">🚪</div>
+                        <h3>Join Room</h3>
+                        <p>Enter a room code to join an existing video call.</p>
+                        <button class="btn btn-secondary">
+                            Join Room
+                        </button>
+                    </div>
+                    
+                    <!-- Contacts -->
+                    <div class="dashboard-card" onclick="goToContacts()">
+                        <div class="icon">👥</div>
+                        <h3>Contacts</h3>
+                        <p>View and manage your contacts list.</p>
+                        <button class="btn btn-secondary">
+                            View Contacts
+                        </button>
+                    </div>
+                    
+                    <!-- Call History -->
+                    <div class="dashboard-card" onclick="goToHistory()">
+                        <div class="icon">📋</div>
+                        <h3>Call History</h3>
+                        <p>View your recent calls and call duration.</p>
+                        <button class="btn btn-secondary">
+                            View History
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- User Profile Card -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h3>👤 Your Profile</h3>
+                    </div>
+                    <div class="card-body">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                            <div>
+                                <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 4px;">Username</p>
+                                <p id="profile-username" style="font-weight: 500;">-</p>
+                            </div>
+                            <div>
+                                <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 4px;">Email</p>
+                                <p id="profile-email" style="font-weight: 500;">-</p>
+                            </div>
+                            <div>
+                                <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 4px;">Display Name</p>
+                                <p id="profile-display-name" style="font-weight: 500;">-</p>
+                            </div>
+                            <div>
+                                <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 4px;">Status</p>
+                                <p id="profile-status" style="font-weight: 500; color: var(--accent-green);">● Online</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Footer -->
+        <footer style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.9rem;">
+            <p>WebRTC Video-Chat • Built with Python & Flask</p>
+        </footer>
+    </div>
+    
+    <!-- Join Room Modal -->
+    <div id="join-modal" class="modal hidden" onclick="closeJoinModal(event)">
+        <div class="modal-content card" onclick="event.stopPropagation()">
+            <div class="card-header">
+                <h3>🚪 Join Room</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="room-code" class="form-label">Room Code</label>
+                    <input 
+                        type="text" 
+                        id="room-code" 
+                        class="form-input" 
+                        placeholder="Enter room code (e.g., ABC-123-XYZ)"
+                        style="text-transform: uppercase;"
+                    >
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button onclick="joinRoom()" class="btn btn-primary" style="flex: 1;">
+                        Join
+                    </button>
+                    <button onclick="closeJoinModal()" class="btn btn-secondary">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal Styles -->
+    <style>
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        
+        .modal.hidden {
+            display: none;
+        }
+        
+        .modal-content {
+            width: 100%;
+            max-width: 400px;
+            animation: slideUp 0.3s ease-out;
+        }
+    </style>
+    
+    <!-- Scripts -->
+    <script src="/static/js/auth.js"></script>
+    <script>
+        /**
+         * Dashboard Page JavaScript
+         */
+        
+        // Require authentication
+        Auth.requireAuth();
+        
+        // Load user data
+        function loadUserData() {
+            const user = Auth.getUser();
+            
+            if (user) {
+                // Update welcome message
+                document.getElementById('welcome-name').textContent = user.display_name || user.username;
+                
+                // Update navigation
+                document.getElementById('user-display-name').textContent = user.display_name || user.username;
+                document.getElementById('user-avatar').textContent = (user.display_name || user.username).charAt(0).toUpperCase();
+                
+                // Update profile card
+                document.getElementById('profile-username').textContent = user.username;
+                document.getElementById('profile-email').textContent = user.email;
+                document.getElementById('profile-display-name').textContent = user.display_name || user.username;
+                
+                // Show user nav, hide auth nav
+                document.getElementById('auth-nav').classList.add('hidden');
+                document.getElementById('user-nav').classList.remove('hidden');
+            }
+        }
+        
+        // Handle logout
+        async function handleLogout() {
+            try {
+                await Auth.logout();
+                Auth.showToast('Logged out successfully', 'success');
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 500);
+            } catch (error) {
+                console.error('Logout error:', error);
+                // Clear auth anyway and redirect
+                Auth.clearAuth();
+                window.location.href = '/login';
+            }
+        }
+        
+        // Start new call (placeholder - will be implemented in Day 5-6)
+        function startNewCall() {
+            // Generate random room code
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let i = 0; i < 9; i++) {
+                if (i === 3 || i === 6) code += '-';
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            
+            Auth.showToast(`Room feature coming in Day 5-6! Code: ${code}`, 'info');
+            // window.location.href = `/room/${code}`;
+        }
+        
+        // Show join modal
+        function showJoinModal() {
+            document.getElementById('join-modal').classList.remove('hidden');
+            document.getElementById('room-code').focus();
+        }
+        
+        // Close join modal
+        function closeJoinModal(event) {
+            if (!event || event.target.id === 'join-modal') {
+                document.getElementById('join-modal').classList.add('hidden');
+            }
+        }
+        
+        // Join room
+        function joinRoom() {
+            const code = document.getElementById('room-code').value.trim().toUpperCase();
+            
+            if (!code) {
+                Auth.showToast('Please enter a room code', 'error');
+                return;
+            }
+            
+            Auth.showToast(`Room feature coming in Day 5-6! Code: ${code}`, 'info');
+            closeJoinModal();
+            // window.location.href = `/room/${code}`;
+        }
+        
+        // Go to contacts
+        function goToContacts() {
+            Auth.showToast('Contacts feature coming in Day 9!', 'info');
+            // window.location.href = '/contacts';
+        }
+        
+        // Go to history
+        function goToHistory() {
+            Auth.showToast('History feature coming in Day 9!', 'info');
+            // window.location.href = '/history';
+        }
+        
+        // Handle Enter key in room code input
+        document.getElementById('room-code').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                joinRoom();
+            }
+        });
+        
+        // Handle Escape key to close modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeJoinModal();
+            }
+        });
+        
+        // Load user data on page load
+        loadUserData();
+    </script>
 </body>
 </html>
-
