@@ -3,7 +3,7 @@
 **Project:** WebRTC Video-Chat Application  
 **Developer:** Rahul Pathak  
 **Repository:** https://github.com/Rahulrkp321/webrtc-video-chat  
-**Last Updated:** January 4, 2026
+**Last Updated:** January 20, 2026
 
 ---
 
@@ -67,10 +67,10 @@ This document provides a comprehensive progress report for the WebRTC Video-Chat
 |-----|------------|--------|-----------------|
 | 1 | Environment Setup + Flask Server | ✅ Complete | Jan 4, 2026 |
 | 2 | Database Schema + Stored Procedures | ✅ Complete | Jan 4, 2026 |
-| 3 | User Authentication API | 🔜 Next | - |
-| 4 | Authentication UI (Login/Register) | ⏳ Pending | - |
-| 5 | Signaling Server + Room Management | ⏳ Pending | - |
-| 6 | WebRTC Core Implementation | ⏳ Pending | - |
+| 3 | User Authentication API | ✅ Complete | Jan 5, 2026 |
+| 4 | Authentication UI (Login/Register) | ✅ Complete | Jan 19, 2026 |
+| 5 | Signaling Server + Room Management | ✅ Complete | Jan 20, 2026 |
+| 6 | WebRTC Core Implementation | 🔜 Next | - |
 | 7 | Complete Video Call Flow | ⏳ Pending | - |
 | 8 | Call Controls + Features | ⏳ Pending | - |
 | 9 | Contact List + Call History | ⏳ Pending | - |
@@ -78,7 +78,7 @@ This document provides a comprehensive progress report for the WebRTC Video-Chat
 | 11 | Polish + Error Handling + Testing | ⏳ Pending | - |
 | 12 | Final Documentation + Deployment | ⏳ Pending | - |
 
-**Overall Progress:** 17% (2/12 Days Complete)
+**Overall Progress:** 42% (5/12 Days Complete)
 
 ---
 

@@ -89,11 +89,18 @@ def create_app(config_name='development'):
     socketio.init_app(app, cors_allowed_origins="*", async_mode='eventlet')
     
     # ============================================
+    # REGISTER SOCKET EVENTS
+    # ============================================
+    
+    # Import socket events (this registers all @socketio.on handlers)
+    from app.socket import events
+    
+    # ============================================
     # REGISTER BLUEPRINTS (Route Groups)
     # ============================================
     
     # Import and register blueprints
-    from app.routes import main_bp, api_bp, auth_bp
+    from app.routes import main_bp, api_bp, auth_bp, room_bp
     
     # Main pages (/, /login, /register, etc.)
     app.register_blueprint(main_bp)
@@ -103,6 +110,9 @@ def create_app(config_name='development'):
     
     # Authentication routes (/api/auth/register, /api/auth/login, etc.)
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    
+    # Room routes (/api/rooms/...)
+    app.register_blueprint(room_bp, url_prefix='/api/rooms')
     
     # ============================================
     # ERROR HANDLERS

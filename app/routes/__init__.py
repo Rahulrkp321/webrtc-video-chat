@@ -47,6 +47,13 @@ from app.routes.auth_routes import auth_bp
 
 
 # ============================================
+# ROOM BLUEPRINT
+# ============================================
+# Handles room endpoints (/api/rooms/...)
+from app.routes.room_routes import room_bp
+
+
+# ============================================
 # IMPORT ROUTE HANDLERS
 # ============================================
 # These imports register the route handlers with blueprints

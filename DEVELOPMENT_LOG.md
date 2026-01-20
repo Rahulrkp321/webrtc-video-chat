@@ -53,7 +53,7 @@ All database access follows these strict rules:
 | Day 2 | Database Schema + Stored Procedures | ✅ Complete |
 | Day 3 | User Authentication API | ✅ Complete |
 | Day 4 | Authentication UI (Login/Register) | ✅ Complete |
-| Day 5 | Signaling Server + Room Management | 🔜 Next |
+| Day 5 | Signaling Server + Room Management | ✅ Complete |
 | Day 6 | WebRTC Core Implementation | ⏳ Pending |
 | Day 7 | Complete Video Call Flow | ⏳ Pending |
 | Day 8 | Call Controls + Features | ⏳ Pending |
@@ -715,4 +715,302 @@ git push -u origin Day-2-Python
 
 ---
 
-*Last updated: Day 4 - Authentication UI*
+---
+
+# 📅 Day 5: Signaling Server + Room Management
+
+## Goals
+- ✅ Create Socket.IO event handlers for signaling
+- ✅ Implement room creation and joining
+- ✅ Build room management API
+- ✅ Create video room UI
+- ✅ Implement WebRTC JavaScript manager
+- ✅ Test room functionality
+
+## What We Built
+
+### 1. Socket.IO Event Handlers (`app/socket/events.py`)
+
+**WHAT IS SOCKET.IO?**
+
+Socket.IO enables real-time, bidirectional communication between browsers and servers. Unlike regular HTTP (request → response), Socket.IO keeps a persistent connection open.
+
+```
+HTTP Communication:
+    Client → Request → Server → Response → Client
+    (Connection closes after each request)
+
+Socket.IO Communication:
+    Client ←→ Server
+    (Connection stays open, both can send anytime)
+```
+
+**WHY DO WE NEED IT FOR WEBRTC?**
+
+WebRTC needs a "signaling server" to exchange connection information BEFORE peers can connect directly:
+
+1. User A wants to call User B
+2. User A sends "offer" to signaling server
+3. Server forwards "offer" to User B
+4. User B sends "answer" back through server
+5. Both exchange ICE candidates through server
+6. Once they have enough info, they connect directly (P2P)
+
+After step 6, video/audio flows directly between browsers, NOT through our server!
+
+**SOCKET EVENTS WE IMPLEMENTED:**
+
+| Event | Direction | Purpose |
+|-------|-----------|---------|
+| `connect` | Client → Server | Client connected |
+| `disconnect` | Client → Server | Client disconnected |
+| `authenticate` | Client → Server | Verify JWT token |
+| `create_room` | Client → Server | Create new room |
+| `join_room` | Client → Server | Join existing room |
+| `leave_room` | Client → Server | Leave room |
+| `offer` | Client → Server → Client | WebRTC offer (SDP) |
+| `answer` | Client → Server → Client | WebRTC answer (SDP) |
+| `ice_candidate` | Client → Server → Client | ICE candidate |
+| `toggle_audio` | Client → Server → Room | Mic on/off |
+| `toggle_video` | Client → Server → Room | Camera on/off |
+| `chat_message` | Client → Server → Room | Text chat |
+
+### 2. Room Controller (`app/controllers/room_controller.py`)
+
+Handles room management through REST API:
+
+```python
+class RoomController:
+    @staticmethod
+    def generate_room_code():
+        """Generate unique code like ABC-123-XYZ"""
+        
+    @staticmethod
+    def create_room(user_id, data):
+        """Create new video chat room"""
+        
+    @staticmethod
+    def get_room(room_code):
+        """Get room information"""
+        
+    @staticmethod
+    def get_room_participants(room_code):
+        """Get list of participants"""
+```
+
+### 3. Room API Routes (`app/routes/room_routes.py`)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/rooms` | Create new room |
+| GET | `/api/rooms/<code>` | Get room info |
+| GET | `/api/rooms/<code>/participants` | Get participants |
+| POST | `/api/rooms/<code>/verify-password` | Verify room password |
+
+### 4. WebRTC Manager (`app/static/js/webrtc.js`)
+
+**WHAT IS WEBRTC?**
+
+WebRTC (Web Real-Time Communication) enables peer-to-peer video/audio communication directly between browsers.
+
+**KEY CONCEPTS:**
+
+1. **Peer Connection (RTCPeerConnection)**
+   - The main WebRTC object
+   - Handles the actual media connection between two peers
+   - Each connection to another user needs one
+
+2. **Media Stream (MediaStream)**
+   - Contains video and/or audio tracks
+   - Local stream: Your camera/mic
+   - Remote stream: Other person's camera/mic
+
+3. **SDP (Session Description Protocol)**
+   - Describes what media you can send/receive
+   - Exchanged as "offer" and "answer"
+
+4. **ICE (Interactive Connectivity Establishment)**
+   - Finds the best path to connect two peers
+   - Uses STUN servers to find public IPs
+
+**CONNECTION FLOW:**
+
+```
+1. User A creates an "offer" (SDP)
+   ↓
+2. User A sends offer to User B via signaling server
+   ↓
+3. User B receives offer, creates "answer" (SDP)
+   ↓
+4. User B sends answer to User A
+   ↓
+5. Both exchange ICE candidates
+   ↓
+6. Connection established! Video flows directly P2P
+```
+
+**WebRTCManager Class Methods:**
+
+```javascript
+class WebRTCManager {
+    // Get local camera/mic
+    async getLocalMedia(constraints)
+    
+    // Toggle audio/video
+    toggleAudio()
+    toggleVideo()
+    
+    // Peer connections
+    createPeerConnection(socketId)
+    async createOffer(socketId)
+    async createAnswer(socketId, offer)
+    async handleAnswer(socketId, answer)
+    async addIceCandidate(socketId, candidate)
+    
+    // Screen sharing
+    async startScreenShare()
+    async stopScreenShare()
+    
+    // Cleanup
+    closePeerConnection(socketId)
+    closeAllConnections()
+}
+```
+
+### 5. Room Page UI (`app/templates/room.html`)
+
+**STRUCTURE:**
+
+```
+┌─────────────────────────────────────────────────┐
+│  HEADER: Room Name | Room Code | Participants   │
+├─────────────────────────────────────────────────┤
+│                                          │ CHAT │
+│         VIDEO GRID                       │      │
+│  ┌─────────────┐  ┌─────────────┐       │ msg  │
+│  │    YOU      │  │   PEER 1    │       │ msg  │
+│  │   (local)   │  │  (remote)   │       │ msg  │
+│  └─────────────┘  └─────────────┘       │      │
+│                                          │[___] │
+├─────────────────────────────────────────────────┤
+│  CONTROLS: 🎤 Mic | 📹 Cam | 🖥️ Screen | 📞 Leave │
+└─────────────────────────────────────────────────┘
+```
+
+### 6. Room Controller JS (`app/static/js/room.js`)
+
+Connects everything together:
+
+1. Page loads → Connect to Socket.IO
+2. Authenticate with JWT token
+3. Join the room
+4. When another user joins → Create WebRTC connection
+5. Exchange offers/answers/ICE candidates
+6. Video streams flow directly between browsers
+
+## Files Created/Modified
+
+| File | Type | Purpose |
+|------|------|---------|
+| `app/socket/__init__.py` | New | Socket package init |
+| `app/socket/events.py` | New | Socket.IO event handlers |
+| `app/controllers/room_controller.py` | New | Room business logic |
+| `app/routes/room_routes.py` | New | Room API endpoints |
+| `app/templates/room.html` | New | Video room page |
+| `app/static/css/room.css` | New | Room page styles |
+| `app/static/js/webrtc.js` | New | WebRTC manager |
+| `app/static/js/room.js` | New | Room page controller |
+| `app/__init__.py` | Modified | Register room routes & socket events |
+| `app/routes/__init__.py` | Modified | Add room blueprint |
+
+## API Test Results
+
+### Create Room
+```bash
+POST /api/rooms
+Authorization: Bearer <token>
+Body: {"room_name": "Test Meeting Room"}
+
+Response:
+{
+  "success": true,
+  "message": "Room created successfully",
+  "data": {
+    "room_id": 2,
+    "room_code": "FTD-F1L-B0E",
+    "room_name": "Test Meeting Room",
+    "max_participants": 10,
+    "is_private": false,
+    "join_url": "/room/FTD-F1L-B0E"
+  }
+}
+```
+
+### Get Room Info
+```bash
+GET /api/rooms/FTD-F1L-B0E
+
+Response:
+{
+  "success": true,
+  "message": "Room found",
+  "data": {
+    "room_id": 2,
+    "room_code": "FTD-F1L-B0E",
+    "room_name": "Test Meeting Room",
+    "host_id": 2,
+    "host_name": "Test User 5",
+    "max_participants": 10,
+    "current_participants": 0,
+    "is_private": false,
+    "room_status": "waiting"
+  }
+}
+```
+
+## Key Learnings
+
+### 1. Socket.IO Rooms
+```python
+# Join a room (group of sockets)
+join_room(room_code)
+
+# Send to everyone in room
+emit('event', data, room=room_code)
+
+# Send to everyone EXCEPT sender
+emit('event', data, room=room_code, include_self=False)
+
+# Leave room
+leave_room(room_code)
+```
+
+### 2. WebRTC ICE Servers
+```javascript
+// STUN servers help discover public IP
+const iceServers = {
+    iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' }
+    ]
+};
+```
+
+### 3. Media Constraints
+```javascript
+const constraints = {
+    video: {
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
+        facingMode: 'user'  // Front camera
+    },
+    audio: {
+        echoCancellation: true,
+        noiseSuppression: true
+    }
+};
+```
+
+---
+
+*Last updated: Day 5 - Signaling Server + Room Management*

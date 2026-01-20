@@ -3,11 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Room {{ room_code }} - WebRTC Video-Chat</title>
+    <title>Video Room - WebRTC Video-Chat</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/room.css') }}">
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
 </head>
 <body>
-    <h1>Video Chat Room: {{ room_code }}</h1>
-    <p>Coming in Day 6-7...</p>
+    <!-- ============================================
+    ROOM PAGE
+    ============================================
+    This page is where the video chat happens!
+    
+    STRUCTURE:
+    1. Room Header - Room info, controls
+    2. Video Grid - Shows all participants
+    3. Control Bar - Mic, camera, leave buttons
+    4. Chat Panel - Text chat (optional)
+    ============================================ -->
+    
+    <div class="room-container">
+        <!-- ============================
+        ROOM HEADER
+        ============================ -->
+        <header class="room-header">
+            <div class="room-info">
+                <h1 class="room-name" id="roomName">Loading...</h1>
+                <span class="room-code" id="roomCode">---</span>
+                <button class="btn-copy" id="copyRoomCode" title="Copy room code">
+                    📋
+                </button>
+            </div>
+            <div class="room-participants">
+                <span class="participant-count">
+                    <span id="participantCount">0</span> participant(s)
+                </span>
+            </div>
+        </header>
+        
+        <!-- ============================
+        MAIN CONTENT AREA
+        ============================ -->
+        <main class="room-main">
+            <!-- ============================
+            VIDEO GRID
+            Shows all participant videos
+            ============================ -->
+            <div class="video-grid" id="videoGrid">
+                <!-- Local video (you) -->
+                <div class="video-container local" id="localVideoContainer">
+                    <video id="localVideo" autoplay muted playsinline></video>
+                    <div class="video-label">
+                        <span class="username">You</span>
+                        <span class="indicators">
+                            <span class="mic-indicator" id="localMicIndicator">🎤</span>
+                            <span class="cam-indicator" id="localCamIndicator">📹</span>
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Remote videos will be added here dynamically -->
+            </div>
+            
+            <!-- ============================
+            CHAT PANEL (Collapsible)
+            ============================ -->
+            <aside class="chat-panel" id="chatPanel">
+                <div class="chat-header">
+                    <h3>Chat</h3>
+                    <button class="btn-close-chat" id="closeChatBtn">✕</button>
+                </div>
+                <div class="chat-messages" id="chatMessages">
+                    <!-- Messages will appear here -->
+                </div>
+                <form class="chat-input" id="chatForm">
+                    <input type="text" id="chatInput" placeholder="Type a message..." autocomplete="off">
+                    <button type="submit">Send</button>
+                </form>
+            </aside>
+        </main>
+        
+        <!-- ============================
+        CONTROL BAR
+        ============================ -->
+        <footer class="control-bar">
+            <div class="controls-left">
+                <button class="control-btn" id="toggleMicBtn" title="Toggle Microphone">
+                    <span class="icon">🎤</span>
+                    <span class="label">Mic</span>
+                </button>
+                <button class="control-btn" id="toggleCamBtn" title="Toggle Camera">
+                    <span class="icon">📹</span>
+                    <span class="label">Camera</span>
+                </button>
+                <button class="control-btn" id="toggleScreenBtn" title="Share Screen">
+                    <span class="icon">🖥️</span>
+                    <span class="label">Screen</span>
+                </button>
+            </div>
+            
+            <div class="controls-center">
+                <button class="control-btn btn-leave" id="leaveRoomBtn" title="Leave Room">
+                    <span class="icon">📞</span>
+                    <span class="label">Leave</span>
+                </button>
+            </div>
+            
+            <div class="controls-right">
+                <button class="control-btn" id="toggleChatBtn" title="Toggle Chat">
+                    <span class="icon">💬</span>
+                    <span class="label">Chat</span>
+                </button>
+                <button class="control-btn" id="settingsBtn" title="Settings">
+                    <span class="icon">⚙️</span>
+                    <span class="label">Settings</span>
+                </button>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- ============================
+    MODALS
+    ============================ -->
+    
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Settings</h2>
+                <button class="btn-close" id="closeSettingsBtn">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <label for="audioInput">Microphone</label>
+                    <select id="audioInput"></select>
+                </div>
+                <div class="setting-group">
+                    <label for="videoInput">Camera</label>
+                    <select id="videoInput"></select>
+                </div>
+                <div class="setting-group">
+                    <label for="audioOutput">Speaker</label>
+                    <select id="audioOutput"></select>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Connection Status -->
+    <div class="connection-status" id="connectionStatus">
+        <span class="status-icon">🔄</span>
+        <span class="status-text">Connecting...</span>
+    </div>
+    
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+    
+    <!-- Scripts -->
+    <script>
+        // Pass room code from server to JavaScript
+        window.ROOM_CODE = "{{ room_code }}";
+    </script>
+    <script src="{{ url_for('static', filename='js/webrtc.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/room.js') }}"></script>
 </body>
 </html>
-
