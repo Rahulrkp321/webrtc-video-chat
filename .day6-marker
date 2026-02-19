@@ -1,0 +1,20 @@
+# Day 6: WebRTC Core Implementation
+
+This commit marks Day 6 of development.
+
+## Day 6 Files (WebRTC Implementation):
+- app/static/js/webrtc.js - WebRTC Manager class
+- app/static/js/room.js - Room Controller
+- app/templates/room.html - Video Room UI
+- app/static/css/room.css - Room Styling
+
+## Day 5 Files (Signaling Server):
+- app/socket/events.py - Socket.IO event handlers
+- app/controllers/room_controller.py - Room business logic
+- app/routes/room_routes.py - Room API endpoints
+
+Note: Due to the development flow, Day 5 and Day 6 files were committed together
+in commit 96f2ff2, but are logically separate features:
+- Day 5: Backend signaling infrastructure
+- Day 6: Frontend WebRTC implementation
+
