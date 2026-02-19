@@ -254,18 +254,39 @@ WHAT THIS PAGE DOES:
             }
         }
         
-        // Start new call (placeholder - will be implemented in Day 5-6)
-        function startNewCall() {
-            // Generate random room code
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let code = '';
-            for (let i = 0; i < 9; i++) {
-                if (i === 3 || i === 6) code += '-';
-                code += chars.charAt(Math.floor(Math.random() * chars.length));
+        // Start new call
+        async function startNewCall() {
+            try {
+                Auth.showToast('Creating room...', 'info');
+                
+                const token = Auth.getToken();
+                const response = await fetch('/api/rooms', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        room_name: 'Video Call Room',
+                        max_participants: 10,
+                        is_private: false
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    Auth.showToast('Room created!', 'success');
+                    // Redirect to room page
+                    window.location.href = result.data.join_url;
+                } else {
+                    Auth.showToast(result.message || 'Failed to create room', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Error creating room:', error);
+                Auth.showToast('Failed to create room', 'error');
             }
-            
-            Auth.showToast(`Room feature coming in Day 5-6! Code: ${code}`, 'info');
-            // window.location.href = `/room/${code}`;
         }
         
         // Show join modal
@@ -282,7 +303,7 @@ WHAT THIS PAGE DOES:
         }
         
         // Join room
-        function joinRoom() {
+        async function joinRoom() {
             const code = document.getElementById('room-code').value.trim().toUpperCase();
             
             if (!code) {
@@ -290,9 +311,39 @@ WHAT THIS PAGE DOES:
                 return;
             }
             
-            Auth.showToast(`Room feature coming in Day 5-6! Code: ${code}`, 'info');
-            closeJoinModal();
-            // window.location.href = `/room/${code}`;
+            try {
+                Auth.showToast('Checking room...', 'info');
+                
+                // Verify room exists
+                const response = await fetch(`/api/rooms/${code}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const roomData = result.data;
+                    
+                    // Check if room has ended
+                    if (roomData.room_status === 'ended') {
+                        Auth.showToast('This room has ended', 'error');
+                        return;
+                    }
+                    
+                    // Check if room is full
+                    if (roomData.current_participants >= roomData.max_participants) {
+                        Auth.showToast('Room is full', 'error');
+                        return;
+                    }
+                    
+                    // Join the room
+                    closeJoinModal();
+                    window.location.href = `/room/${code}`;
+                } else {
+                    Auth.showToast(result.message || 'Room not found', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Error joining room:', error);
+                Auth.showToast('Failed to join room', 'error');
+            }
         }
         
         // Go to contacts
