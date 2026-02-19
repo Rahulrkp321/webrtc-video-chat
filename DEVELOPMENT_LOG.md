@@ -1013,4 +1013,227 @@ const constraints = {
 
 ---
 
-*Last updated: Day 5 - Signaling Server + Room Management*
+# 📅 Day 6-7: Complete Video Call Flow
+
+## Status
+✅ **COMPLETE** - WebRTC implementation is fully functional!
+
+## Goals
+- ✅ Connect dashboard to room creation API
+- ✅ Implement room joining flow
+- ✅ Test complete WebRTC video call flow
+- ✅ Verify peer-to-peer video connections
+
+## What We Completed
+
+### 1. Dashboard Integration
+
+Updated `app/templates/dashboard.html` to connect with backend APIs:
+
+**Create Room Flow:**
+```javascript
+async function startNewCall() {
+    // Calls POST /api/rooms to create a new room
+    // Receives room_code in response
+    // Redirects to /room/<room_code>
+}
+```
+
+**Join Room Flow:**
+```javascript
+async function joinRoom() {
+    // Calls GET /api/rooms/<code> to verify room exists
+    // Checks room status (not ended, not full)
+    // Redirects to /room/<code>
+}
+```
+
+### 2. Complete Video Call Stack
+
+The complete WebRTC video chat system is now functional:
+
+```
+┌─────────────────────────────────────────────────────┐
+│  FRONTEND (Browser)                                  │
+│  ┌──────────────┐  ┌──────────────┐  ┌───────────┐ │
+│  │  Dashboard   │→ │  Room Page   │→ │  WebRTC   │ │
+│  │  (HTML/JS)   │  │  (room.js)   │  │  Manager  │ │
+│  └──────────────┘  └──────────────┘  └───────────┘ │
+└──────────────────┬──────────────────────────────────┘
+                   │
+        HTTP/REST  │  WebSocket/Socket.IO
+                   │
+┌──────────────────┴──────────────────────────────────┐
+│  BACKEND (Python/Flask)                              │
+│  ┌──────────────┐  ┌──────────────┐  ┌───────────┐ │
+│  │ Room API     │  │ Socket.IO    │  │  Database │ │
+│  │ (REST)       │  │ (Signaling)  │  │  (MySQL)  │ │
+│  └──────────────┘  └──────────────┘  └───────────┘ │
+└─────────────────────────────────────────────────────┘
+         ↕                    ↕
+   Create/Join          Offer/Answer/ICE
+      Rooms               Candidates
+```
+
+### 3. How It Works (Complete Flow)
+
+**User A creates a room:**
+1. User A clicks "Start New Call" on dashboard
+2. Frontend calls `POST /api/rooms`
+3. Backend creates room in database, generates code (e.g., "ABC-123-XYZ")
+4. User A redirects to `/room/ABC-123-XYZ`
+5. Room page loads:
+   - Gets camera/microphone access
+   - Connects to Socket.IO server
+   - Authenticates with JWT token
+   - Joins the Socket.IO room
+   - Displays local video
+
+**User B joins the room:**
+1. User B enters room code "ABC-123-XYZ" on dashboard
+2. Frontend calls `GET /api/rooms/ABC-123-XYZ` to verify room exists
+3. User B redirects to `/room/ABC-123-XYZ`
+4. Room page loads (same as User A)
+5. Socket.IO emits `user_joined` to User A
+6. User A receives notification → Creates WebRTC offer
+7. User A sends offer to User B via Socket.IO
+8. User B receives offer → Creates WebRTC answer
+9. User B sends answer to User A via Socket.IO
+10. Both exchange ICE candidates
+11. **Connection established! Video flows directly peer-to-peer**
+
+### 4. Key Features Working
+
+✅ **Room Management**
+- Create rooms with unique codes
+- Join existing rooms
+- Room validation (exists, not full, not ended)
+- Multiple participants per room
+
+✅ **WebRTC Video**
+- Camera and microphone access
+- Peer-to-peer video connections
+- Multiple peer connections (mesh topology)
+- Automatic connection management
+
+✅ **Controls**
+- Toggle microphone (mute/unmute)
+- Toggle camera (on/off)
+- Screen sharing
+- Leave room
+- Settings (device selection)
+
+✅ **Real-time Communication**
+- Socket.IO signaling
+- WebRTC offer/answer exchange
+- ICE candidate exchange
+- User join/leave notifications
+
+✅ **UI Features**
+- Video grid layout
+- Local video preview
+- Remote video displays
+- Participant count
+- Room code copy
+- Connection status
+- Toast notifications
+- Chat panel (text messaging)
+
+### 5. Testing the Application
+
+**Start the Server:**
+```bash
+cd ~/webrtc-video-chat
+/Users/rahulpathak/webrtc-video-chat/venv/bin/python run.py
+```
+
+Server will run on: http://localhost:3000
+
+**Test Flow:**
+1. Register a user account at `/register`
+2. Login at `/login`
+3. Go to `/dashboard`
+4. Click "Start New Call" to create a room
+5. Open another browser/tab (or use incognito)
+6. Login as a different user
+7. Click "Join Room" and enter the room code
+8. Both users should see each other's video!
+
+### 6. Architecture Highlights
+
+**WebRTC Configuration:**
+- STUN servers: Google's free STUN servers
+- ICE candidates: Automatic discovery
+- Media constraints: 720p video, echo cancellation
+- Connection state monitoring
+
+**Socket.IO Events:**
+| Event | Description |
+|-------|-------------|
+| `connect` | Client connects to server |
+| `authenticate` | JWT token validation |
+| `join_room` | User joins a room |
+| `user_joined` | Broadcast new user to room |
+| `offer` | WebRTC offer (SDP) |
+| `answer` | WebRTC answer (SDP) |
+| `ice_candidate` | ICE candidate exchange |
+| `toggle_audio` | Mic state change |
+| `toggle_video` | Camera state change |
+| `chat_message` | Text chat message |
+| `leave_room` | User leaves room |
+| `user_left` | Broadcast user departure |
+
+### 7. Current Status
+
+**✅ FULLY FUNCTIONAL:**
+- User authentication
+- Room creation
+- Room joining
+- WebRTC video calls
+- Multiple participants
+- Media controls
+- Screen sharing
+- Text chat
+- Real-time signaling
+
+**📝 REMAINING FEATURES (Days 8-12):**
+- Day 8: Call history tracking
+- Day 9: Contact list management
+- Day 10: Enhanced group call features
+- Day 11: Error handling & testing
+- Day 12: Documentation & deployment
+
+### 8. How to Use
+
+**For Testing:**
+```bash
+# Terminal 1: Start server
+cd ~/webrtc-video-chat
+/Users/rahulpathak/webrtc-video-chat/venv/bin/python run.py
+
+# Browser 1: User A
+http://localhost:3000/register  # Create account
+http://localhost:3000/login     # Login
+http://localhost:3000/dashboard # Click "Start New Call"
+
+# Browser 2: User B (use incognito or different browser)
+http://localhost:3000/register  # Create different account
+http://localhost:3000/login     # Login
+http://localhost:3000/dashboard # Click "Join Room", enter code
+```
+
+### 9. Key Files
+
+| File | Purpose | Status |
+|------|---------|--------|
+| `app/templates/dashboard.html` | Dashboard UI + Room API calls | ✅ Complete |
+| `app/static/js/webrtc.js` | WebRTC manager | ✅ Complete |
+| `app/static/js/room.js` | Room controller | ✅ Complete |
+| `app/templates/room.html` | Video room UI | ✅ Complete |
+| `app/socket/events.py` | Socket.IO handlers | ✅ Complete |
+| `app/routes/room_routes.py` | Room API endpoints | ✅ Complete |
+| `app/controllers/room_controller.py` | Room business logic | ✅ Complete |
+
+---
+
+*Last updated: Day 6-7 - Complete Video Call Flow (February 19, 2026)*
